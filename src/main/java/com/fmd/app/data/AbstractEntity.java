@@ -6,7 +6,23 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+/**
+ * Abstract base class for all entities in the application.
+ * Provides a common identifier and versioning mechanism.
+ *
+ * @author Shailesh Halor
+ * @version 1.0
+ * @since 1.0
+ */
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @MappedSuperclass
 public abstract class AbstractEntity {
 
@@ -19,34 +35,4 @@ public abstract class AbstractEntity {
     @Version
     private int version;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    @Override
-    public int hashCode() {
-        if (getId() != null) {
-            return getId().hashCode();
-        }
-        return super.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof AbstractEntity that)) {
-            return false; // null or not an AbstractEntity class
-        }
-        if (getId() != null) {
-            return getId().equals(that.getId());
-        }
-        return super.equals(that);
-    }
 }
