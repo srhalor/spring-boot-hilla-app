@@ -1,7 +1,6 @@
 package com.fmd.app.dto;
 
 import lombok.Builder;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -16,6 +15,5 @@ import java.util.List;
 @Builder
 public record PageResponse<T>(
     List<T> content,
-    Pagination pagination,
-    List<Sort.Order> sort
+    Pagination pagination
 ) {}

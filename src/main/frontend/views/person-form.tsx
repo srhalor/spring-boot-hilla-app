@@ -1,9 +1,25 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { useEffect, useState } from 'react';
 import { getPersons } from '../generated/PersonEndpoint';
+import { useSignal } from '@vaadin/hilla-react-signals';
 import { Grid } from '@vaadin/react-components/Grid.js';
-import { GridColumn } from '@vaadin/react-components/GridColumn.js';
-import type Person from '../generated/com/fmd/app/data/Person';
+import { GridSortColumn } from '@vaadin/react-components/GridSortColumn.js';
+import { EmailField, FormLayout, FormRow, SplitLayout, TextField } from '@vaadin/react-components';
+import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout.js';
+import { Icon } from '@vaadin/react-components/Icon.js';
+import { VerticalLayout } from '@vaadin/react-components/VerticalLayout.js';
+import type Pagination from '../generated/com/fmd/app/dto/Pagination.js';
+import type PageSortRequest from '../generated/com/fmd/app/dto/PageSortRequest.js';
+import GridPaginationControls, { defaultPagination } from '../components/pagination/GridPaginationControls';
+import { Button } from '@vaadin/react-components/Button.js';
+import type { TextFieldChangeEvent } from '@vaadin/react-components/TextField.js';
+import type PersonDTO from '../generated/com/fmd/app/dto/PersonDTO.js';
+
+// Define the type for a single sort
+interface SortRequest {
+  sortBy: string;
+  direction: 'ASC' | 'DESC';
+}
 
 export const config: ViewConfig = {
   menu: { order: 1, icon: 'line-awesome/svg/user.svg' },
@@ -11,78 +27,138 @@ export const config: ViewConfig = {
   loginRequired: true,
 };
 
+export const pageSortRequest = {
+  offset: defaultPagination.offset,
+  pageSize: defaultPagination.pageSize,
+  sortBy: []
+};
+
+export const defaultFilter: PersonDTO = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  address: ''
+};
+
 export default function PersonFormView() {
-  const [persons, setPersons] = useState<Person[]>([]);
-  const [pageInfo, setPageInfo] = useState<{
-    totalElements: number;
-    totalPages: number;
-    currentPage: number;
-    pageSize: number;
-    first: boolean;
-    last: boolean;
-  }>({
-    totalElements: 0,
-    totalPages: 0,
-    currentPage: 0,
-    pageSize: 10,
-    first: true,
-    last: true
-  });
+  const [persons, setPersons] = useState<PersonDTO[]>([]);
+  const [pageData, setPageData] = useState<Pagination>(defaultPagination);
+  const [sortRequest, setSortRequest] = useState<PageSortRequest>(pageSortRequest);
+  const selectedItems = useSignal<PersonDTO[]>([]);
+  // Add filter state
+  const [filter, setFilter] = useState<PersonDTO>(defaultFilter);
+  const [pendingFilter, setPendingFilter] = useState<PersonDTO>(defaultFilter);
 
-  useEffect(() => {
-    // Create PageSortRequest object to match backend expectation
-    const pageSortRequest = {
-      offset: 0,
-      pageSize: 10,
-      direction: 'ASC' as const,
-      sortBy: 'firstName'
-    };
+  const handlePageChanged = (newOffset: number, newPageSize: number) => {
+    setSortRequest((prev) => ({ ...prev, offset: newOffset, pageSize: newPageSize }));
+  };
 
-    getPersons(pageSortRequest).then((pageResponse) => {
-        console.log('Persons page response:', pageResponse);
-
-        // Handle PageResponse structure
-        if (pageResponse && pageResponse.content) {
-          setPersons(pageResponse.content);
-          setPageInfo({
-            totalElements: pageResponse.totalElements || 0,
-            totalPages: pageResponse.totalPages || 0,
-            currentPage: pageResponse.pageNumber || 0,
-            pageSize: pageResponse.pageSize || 10,
-            first: pageResponse.first || true,
-            last: pageResponse.last || true
-          });
+  // Multi-sort handler
+  const handleSort = (e: CustomEvent) => {
+    const direction = e.detail.value;
+    // @ts-ignore: Vaadin types do not include path, but it exists on the element
+    const path = (e.target as any).path;
+    setSortRequest((prev) => {
+      let newSortBy = prev.sortBy ? [...prev.sortBy] : [];
+      // Remove if direction is null (unsorted)
+      if (!direction) {
+        newSortBy = newSortBy.filter(s => s?.sortBy !== path);
+      } else {
+        // Update or add
+        const idx = newSortBy.findIndex(s => s?.sortBy === path);
+        if (idx > -1) {
+          newSortBy[idx] = { sortBy: path, direction: direction.toUpperCase() };
         } else {
-          console.warn('Unexpected response structure:', pageResponse);
-          setPersons([]);
+          newSortBy.push({ sortBy: path, direction: direction.toUpperCase() });
         }
-    }).catch((error) => {
-        console.error('Error fetching persons:', error);
-        setPersons([]);
+      }
+      return { ...prev, sortBy: newSortBy, offset: 0 };
     });
-  }, []);
+  };
+
+  const onActiveItemChanged = (e: CustomEvent) => {
+    const activeItem = e.detail.value;
+    if (activeItem) {
+      selectedItems.value = [activeItem];
+    } else {
+      selectedItems.value = [];
+    }
+  };
+
+  // Update pending filter only
+  const handleFilterChange = (e: TextFieldChangeEvent) => {
+    const { name, value } = e.target;
+    setPendingFilter((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Apply filter on button click
+  const applyFilter = () => {
+    setFilter(pendingFilter);
+  };
+
+  // Reset filter to default
+  const resetFilter = () => {
+    setPendingFilter(defaultFilter);
+    setFilter(defaultFilter);
+  }
+
+  // Helper to check if any filter is set
+  const isFilterSet = Object.values(pendingFilter).some((v) => v && v.length > 0);
+
+  // Add filter to sortRequest/useEffect
+  useEffect(() => {
+      console.log('Fetching persons with sortRequest:', sortRequest, 'and filter:', filter);
+    getPersons(sortRequest, filter).then((pageResponse) => {
+      if (pageResponse && pageResponse.content && pageResponse.pagination) {
+        console.log('Fetched persons:', pageResponse);
+        setPersons(pageResponse.content);
+        setPageData(pageResponse.pagination);
+      } else {
+        setPersons([]);
+        setPageData(defaultPagination);
+      }
+    }).catch(() => {
+      console.error('Failed to fetch persons');
+      setPersons([]);
+      setPageData(defaultPagination);
+    });
+  }, [sortRequest, filter]);
 
   return (
-    <div>
-      <div style={{ marginBottom: '1rem', padding: '1rem',  borderRadius: '4px' }}>
-        <p>
-          Showing {persons.length} of {pageInfo.totalElements} persons
-        </p>
-        <p>
-          Page {pageInfo.currentPage + 1} of {pageInfo.totalPages}
-          {pageInfo.first && ' (First Page)'}
-          {pageInfo.last && ' (Last Page)'}
-        </p>
-        <p>Page Size: {pageInfo.pageSize}</p>
-      </div>
+    <VerticalLayout theme="spacing" style={{ padding: 'var(--lumo-space-m)' }}>
+      <FormLayout style={{ maxWidth: 900, marginBottom: 'var(--lumo-space-m)' }}>
+        <TextField label="First Name" name="firstName" value={pendingFilter.firstName} onChange={handleFilterChange} clearButtonVisible />
+        <TextField label="Last Name" name="lastName" value={pendingFilter.lastName} onChange={handleFilterChange} clearButtonVisible />
+        <EmailField label="Email" name="email" value={pendingFilter.email} onChange={handleFilterChange} clearButtonVisible />
+        <TextField label="Phone" name="phone" value={pendingFilter.phone} onChange={handleFilterChange} clearButtonVisible />
+        <TextField label="Address" name="address" value={pendingFilter.address} onChange={handleFilterChange} clearButtonVisible />
+        <HorizontalLayout style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <Button theme="primary" onClick={applyFilter} disabled={!isFilterSet}>Filter</Button>
+          <Button onClick={resetFilter} style={{ marginLeft: 'var(--lumo-space-s)' }} disabled={!isFilterSet}>Clear</Button>
+        </HorizontalLayout>
+      </FormLayout>
+      <VerticalLayout theme="spacing-xs" style={{ width: '100%' }}>
+        <Grid
+            items={persons}
+            all-rows-visible
+            columnReorderingAllowed
+            selectedItems={selectedItems.value}
+            onActiveItemChanged={onActiveItemChanged}
+            multiSort
+            multiSortPriority="append"
+        >
+          <GridSortColumn path="id" header="ID" autoWidth flexGrow={0} resizable onDirectionChanged={handleSort} />
+          <GridSortColumn path="firstName" header="First Name" autoWidth flexGrow={0} resizable onDirectionChanged={handleSort} />
+          <GridSortColumn path="lastName" header="Last Name" autoWidth flexGrow={0} resizable onDirectionChanged={handleSort} />
+          <GridSortColumn path="email" header="Email" autoWidth flexGrow={0} resizable onDirectionChanged={handleSort} />
+          <GridSortColumn path="phone" header="Phone" autoWidth flexGrow={0} resizable onDirectionChanged={handleSort} />
+          <GridSortColumn path="address" header="Address" resizable onDirectionChanged={handleSort} />
 
-      <Grid items={persons}>
-        <GridColumn path="firstName" header="First Name" />
-        <GridColumn path="lastName" header="Last Name" />
-        <GridColumn path="email" header="Email" />
-        <GridColumn path="phone" header="Phone" />
-        <GridColumn path="address" header="Address" />
-      </Grid>
-    </div>
+          <span slot="empty-state">No Person found.</span>
+        </Grid>
+        <GridPaginationControls pageData={pageData} onPageChange={handlePageChanged} />
+      </VerticalLayout>
+    </VerticalLayout>
   );
 }
