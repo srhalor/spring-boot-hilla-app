@@ -1,6 +1,6 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { useEffect, useState } from 'react';
-import { getPersons } from '../generated/PersonEndpoint';
+import { getPersons } from 'Frontend/generated/PersonEndpoint';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import { Grid } from '@vaadin/react-components/Grid.js';
 import { GridSortColumn } from '@vaadin/react-components/GridSortColumn.js';
@@ -8,12 +8,12 @@ import { EmailField, FormLayout, FormRow, SplitLayout, TextField } from '@vaadin
 import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout.js';
 import { Icon } from '@vaadin/react-components/Icon.js';
 import { VerticalLayout } from '@vaadin/react-components/VerticalLayout.js';
-import type Pagination from '../generated/com/fmd/app/dto/Pagination.js';
-import type PageSortRequest from '../generated/com/fmd/app/dto/PageSortRequest.js';
-import GridPaginationControls, { defaultPagination } from '../components/pagination/GridPaginationControls';
+import type Pagination from 'Frontend/generated/com/fmd/app/dto/Pagination.js';
+import type PageSortRequest from 'Frontend/generated/com/fmd/app/dto/PageSortRequest.js';
+import GridPaginationControls, { defaultPagination } from 'Frontend/components/pagination/GridPaginationControls';
 import { Button } from '@vaadin/react-components/Button.js';
 import type { TextFieldChangeEvent } from '@vaadin/react-components/TextField.js';
-import type PersonDTO from '../generated/com/fmd/app/dto/PersonDTO.js';
+import type PersonDTO from 'Frontend/generated/com/fmd/app/dto/PersonDTO.js';
 
 // Define the type for a single sort
 interface SortRequest {

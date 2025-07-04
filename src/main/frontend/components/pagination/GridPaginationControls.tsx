@@ -1,7 +1,7 @@
 import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout.js';
 import PaginationArrow from './PaginationArrow';
 import PageSizeSelect from './PageSizeSelect';
-import type Pagination from '../../generated/com/fmd/app/dto/Pagination.js';
+import type Pagination from 'Frontend/generated/com/fmd/app/dto/Pagination.js';
 import React from 'react';
 
 interface GridPaginationControlsProps {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@vaadin/react-components/Button.js';
 import { Icon } from '@vaadin/react-components/Icon.js';
-import type Pagination from '../../generated/com/fmd/app/dto/Pagination.js';
+import type Pagination from 'Frontend/generated/com/fmd/app/dto/Pagination.js';
 
 interface PaginationArrowProps {
   type: 'first' | 'previous' | 'next' | 'last';
