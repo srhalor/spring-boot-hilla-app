@@ -10,7 +10,7 @@ import { Icon } from '@vaadin/react-components/Icon.js';
 import { VerticalLayout } from '@vaadin/react-components/VerticalLayout.js';
 import type Pagination from 'Frontend/generated/com/fmd/app/dto/Pagination.js';
 import type PageSortRequest from 'Frontend/generated/com/fmd/app/dto/PageSortRequest.js';
-import GridPaginationControls, { defaultPagination } from 'Frontend/components/pagination/GridPaginationControls';
+import GridPaginationControls, { defaultPagination, pageSortRequest } from 'Frontend/components/pagination/GridPaginationControls';
 import { Button } from '@vaadin/react-components/Button.js';
 import type { TextFieldChangeEvent } from '@vaadin/react-components/TextField.js';
 import type PersonDTO from 'Frontend/generated/com/fmd/app/dto/PersonDTO.js';
@@ -25,12 +25,6 @@ export const config: ViewConfig = {
   menu: { order: 1, icon: 'line-awesome/svg/user.svg' },
   title: 'Person Form',
   loginRequired: true,
-};
-
-export const pageSortRequest = {
-  offset: defaultPagination.offset,
-  pageSize: defaultPagination.pageSize,
-  sortBy: []
 };
 
 export const defaultFilter: PersonDTO = {
@@ -101,6 +95,14 @@ export default function PersonFormView() {
   const resetFilter = () => {
     setPendingFilter(defaultFilter);
     setFilter(defaultFilter);
+    // Reset sort as well
+    setSortRequest(pageSortRequest);
+    // Remove directions from sort columns
+    const sortColumns = document.querySelectorAll('vaadin-grid-sort-column');
+    sortColumns.forEach((col) => {
+      // @ts-ignore: Vaadin types do not include direction, but it exists on the element
+      col.direction = null;
+    });
   }
 
   // Helper to check if any filter is set
@@ -135,7 +137,7 @@ export default function PersonFormView() {
         <TextField label="Address" name="address" id="address" value={pendingFilter.address} onChange={handleFilterChange} clearButtonVisible autocomplete="street-address" />
         <HorizontalLayout style={{ width: '100%', justifyContent: 'flex-end' }}>
           <Button theme="primary" onClick={applyFilter} disabled={!isFilterSet}>Filter</Button>
-          <Button onClick={resetFilter} style={{ marginLeft: 'var(--lumo-space-s)' }} disabled={!isFilterSet}>Clear</Button>
+          <Button onClick={resetFilter} style={{ marginLeft: 'var(--lumo-space-s)' }} >Clear</Button>
         </HorizontalLayout>
       </FormLayout>
       <VerticalLayout theme="spacing-xs" style={{ width: '100%' }}>

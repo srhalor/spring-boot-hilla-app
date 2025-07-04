@@ -2,6 +2,7 @@ import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout.js';
 import PaginationArrow from './PaginationArrow';
 import PageSizeSelect from './PageSizeSelect';
 import type Pagination from 'Frontend/generated/com/fmd/app/dto/Pagination.js';
+import type PageSortRequest from 'Frontend/generated/com/fmd/app/dto/PageSortRequest.js';
 import React from 'react';
 
 interface GridPaginationControlsProps {
@@ -53,6 +54,12 @@ export const defaultPagination: Pagination = {
   pageNumber: 1,
   totalPages: 1,
   pageSize: 10
+};
+
+export const pageSortRequest: PageSortRequest ={
+  offset: defaultPagination.offset,
+  pageSize: defaultPagination.pageSize,
+  sortBy: []
 };
 
 export default GridPaginationControls;
