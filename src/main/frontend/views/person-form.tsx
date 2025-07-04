@@ -128,11 +128,11 @@ export default function PersonFormView() {
   return (
     <VerticalLayout theme="spacing" style={{ padding: 'var(--lumo-space-m)' }}>
       <FormLayout style={{ maxWidth: 900, marginBottom: 'var(--lumo-space-m)' }}>
-        <TextField label="First Name" name="firstName" value={pendingFilter.firstName} onChange={handleFilterChange} clearButtonVisible />
-        <TextField label="Last Name" name="lastName" value={pendingFilter.lastName} onChange={handleFilterChange} clearButtonVisible />
-        <EmailField label="Email" name="email" value={pendingFilter.email} onChange={handleFilterChange} clearButtonVisible />
-        <TextField label="Phone" name="phone" value={pendingFilter.phone} onChange={handleFilterChange} clearButtonVisible />
-        <TextField label="Address" name="address" value={pendingFilter.address} onChange={handleFilterChange} clearButtonVisible />
+        <TextField label="First Name" name="firstName" id="firstName" value={pendingFilter.firstName} onChange={handleFilterChange} clearButtonVisible autocomplete="given-name" />
+        <TextField label="Last Name" name="lastName" id="lastName" value={pendingFilter.lastName} onChange={handleFilterChange} clearButtonVisible autocomplete="family-name" />
+        <EmailField label="Email" name="email" id="email" value={pendingFilter.email} onChange={handleFilterChange} clearButtonVisible autocomplete="email" />
+        <TextField label="Phone" name="phone" id="phone" value={pendingFilter.phone} onChange={handleFilterChange} clearButtonVisible autocomplete="tel" />
+        <TextField label="Address" name="address" id="address" value={pendingFilter.address} onChange={handleFilterChange} clearButtonVisible autocomplete="street-address" />
         <HorizontalLayout style={{ width: '100%', justifyContent: 'flex-end' }}>
           <Button theme="primary" onClick={applyFilter} disabled={!isFilterSet}>Filter</Button>
           <Button onClick={resetFilter} style={{ marginLeft: 'var(--lumo-space-s)' }} disabled={!isFilterSet}>Clear</Button>
@@ -141,7 +141,7 @@ export default function PersonFormView() {
       <VerticalLayout theme="spacing-xs" style={{ width: '100%' }}>
         <Grid
             items={persons}
-            all-rows-visible
+            //all-rows-visible
             columnReorderingAllowed
             selectedItems={selectedItems.value}
             onActiveItemChanged={onActiveItemChanged}
