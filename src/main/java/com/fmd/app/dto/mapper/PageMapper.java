@@ -4,6 +4,7 @@ import com.fmd.app.data.Person;
 import com.fmd.app.dto.PageResponse;
 import com.fmd.app.dto.PageSortRequest;
 import com.fmd.app.dto.Pagination;
+import org.jetbrains.annotations.NotNull;
 import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,30 +29,27 @@ public interface PageMapper {
     /**
      * Converts a Page of any type to a PageResponse.
      *
-     * @param <T> the type of content in the page
+     * @param <T>  the type of content in the page
      * @param page the Page to convert
      * @return a PageResponse containing the content and pagination information
      */
     default <T> PageResponse<T> toPageResponse(Page<T> page) {
 
         Pagination pagination = Pagination.builder()
-                .pageNumber(page.getNumber())
-                .pageSize(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .last(page.isLast())
-                .first(page.isFirst())
-                .numberOfElements(page.getNumberOfElements())
                 .empty(page.isEmpty())
-                .offset(page.getPageable().getPageNumber())
-                .paged(page.getPageable().isPaged())
-                .unpaged(page.getPageable().isUnpaged())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .numberOfElements(page.getNumberOfElements())
+                .totalElements(page.getTotalElements())
+                .offset(page.getNumber())
+                .pageNumber(page.getNumber() + 1)
+                .totalPages(page.getTotalPages())
+                .pageSize(page.getSize())
                 .build();
 
         return PageResponse.<T>builder()
                 .content(page.getContent())
                 .pagination(pagination)
-                .sort(page.getSort().stream().toList())
                 .build();
     }
 
@@ -62,11 +60,20 @@ public interface PageMapper {
      * @return a PageRequest based on the provided PageSortRequest
      */
     default PageRequest toPageRequest(PageSortRequest pageSortRequest) {
+        // Build Sort with multiple orders
+        Sort sort = Sort.by(
+                pageSortRequest.sortBy().stream()
+                        .map(PageMapper::getOrder)
+                        .toList()
+        );
         return PageRequest.of(
                 pageSortRequest.offset(),
                 pageSortRequest.pageSize(),
-                Sort.Direction.fromString(pageSortRequest.direction()),
-                pageSortRequest.sortBy()
+                sort
         );
+    }
+
+    private static Sort.Order getOrder(PageSortRequest.SortRequest s) {
+        return new Sort.Order(s.direction(), s.sortBy());
     }
 }

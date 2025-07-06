@@ -11,15 +11,13 @@ import lombok.Builder;
  */
 @Builder
 public record Pagination(
-    int pageNumber,
-    int pageSize,
-    long totalElements,
-    int totalPages,
-    boolean last,
-    boolean first,
-    int numberOfElements,
     boolean empty,
+    boolean first,
+    boolean last,
+    int numberOfElements,
+    long totalElements,
     int offset,
-    boolean paged,
-    boolean unpaged
+    int pageNumber,
+    int totalPages,
+    int pageSize
 ) {}
