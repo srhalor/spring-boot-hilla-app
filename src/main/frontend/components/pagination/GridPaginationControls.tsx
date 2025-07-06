@@ -10,39 +10,26 @@ interface GridPaginationControlsProps {
   onPageChange: (newOffset: number, newPageSize: number) => void;
 }
 
-const GridPaginationControls: React.FC<GridPaginationControlsProps> = ({ pageData, onPageChange }) => {
-  const totalPages = pageData.totalPages;
-  return (
-    <HorizontalLayout style={{ alignItems: 'center', gap: '0.3rem', width: '100%' }}>
-      <HorizontalLayout style={{ alignItems: 'center' }} theme="spacing-s">
-        <PageSizeSelect pageSize={pageData.pageSize} onPageChange={onPageChange} />
-      </HorizontalLayout>
-      <PaginationArrow
-        type="first"
-        pageData={pageData}
-        onPageChange={onPageChange}
-      />
-      <PaginationArrow
-        type="previous"
-        pageData={pageData}
-        onPageChange={onPageChange}
-      />
-      <span className="text-s px-s" slot="end">
-        Page {pageData.pageNumber} of {totalPages}
-      </span>
-      <PaginationArrow
-        type="next"
-        pageData={pageData}
-        onPageChange={onPageChange}
-      />
-      <PaginationArrow
-        type="last"
-        pageData={pageData}
-        onPageChange={onPageChange}
-      />
+const PAGINATION_DIRECTIONS = ['first', 'previous', 'next', 'last'];
+
+const GridPaginationControls: React.FC<GridPaginationControlsProps> = ({ pageData, onPageChange }) => (
+  <HorizontalLayout style={{ alignItems: 'center', gap: '0.3rem', width: '100%' }}>
+    <HorizontalLayout style={{ alignItems: 'center' }} theme="spacing-s">
+      <PageSizeSelect pageSize={pageData.pageSize} onPageChange={onPageChange} />
     </HorizontalLayout>
-  );
-};
+    {PAGINATION_DIRECTIONS.map((type) => (
+      <PaginationArrow
+        key={type}
+        type={type as 'first' | 'previous' | 'next' | 'last'}
+        pageData={pageData}
+        onPageChange={onPageChange}
+      />
+    ))}
+    <span className="text-s px-s" slot="end">
+      Page {pageData.pageNumber} of {pageData.totalPages}
+    </span>
+  </HorizontalLayout>
+);
 
 export const defaultPagination: Pagination = {
   empty: true,
