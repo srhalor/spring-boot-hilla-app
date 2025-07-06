@@ -16,6 +16,16 @@
       "name": "Attach to Application started using Maven",
       "hostName": "localhost",
       "port": 5247
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-Application<spring-boot-vaadin-hilla>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.fmd.app.Application",
+      "projectName": "spring-boot-vaadin-hilla",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }

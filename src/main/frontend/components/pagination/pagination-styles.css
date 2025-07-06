@@ -1,0 +1,41 @@
+:root {
+  --pagination-chip-bg: var(--lumo-primary-color-10pct);
+  --pagination-chip-text: var(--lumo-primary-text-color);
+  --pagination-chip-border: 1px solid var(--lumo-primary-color-50pct);
+  --pagination-chip-radius: 1rem;
+  --pagination-chip-padding: 0.2rem 0.8rem;
+  --pagination-chip-font-size: var(--lumo-font-size-s);
+  --pagination-controls-gap: 0.5rem;
+  --pagination-controls-margin-bottom: var(--lumo-space-m);
+  --pagination-controls-margin-right: 1rem;
+}
+
+.pagination-controls {
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: var(--pagination-controls-margin-bottom);
+}
+
+.pagination-chips {
+  display: flex;
+  gap: var(--pagination-controls-gap);
+  flex-wrap: wrap;
+  margin-right: var(--pagination-controls-margin-right);
+}
+
+.pagination-chip {
+  background: var(--pagination-chip-bg);
+  color: var(--pagination-chip-text);
+  border-radius: var(--pagination-chip-radius);
+  padding: var(--pagination-chip-padding);
+  font-size: var(--pagination-chip-font-size);
+  display: inline-flex;
+  align-items: center;
+  border: var(--pagination-chip-border);
+}
+
+.pagination-page-size-select {
+  width: 4.8rem;
+  font-size: var(--lumo-font-size-s);
+}
