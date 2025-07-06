@@ -31,7 +31,7 @@ public class FilterSpecificationUtil {
                         case "startsWith" -> predicates.add(cb.like(cb.lower(root.get(col)), val.toLowerCase() + "%"));
                         case "endsWith" -> predicates.add(cb.like(cb.lower(root.get(col)), "%" + val.toLowerCase()));
                         // Add more operators as needed
-                        default -> {}
+                        default -> throw new IllegalArgumentException("Unsupported operator: " + op);
                     }
                 }
             }
