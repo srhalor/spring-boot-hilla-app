@@ -7,7 +7,6 @@ import com.fmd.app.dto.PageSortRequest;
 import com.fmd.app.dto.PersonDTO;
 import com.fmd.app.dto.mapper.PageMapper;
 import com.fmd.app.dto.mapper.PersonMapper;
-import com.fmd.app.utils.JsonUtils;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,6 @@ public class PersonEndpoint {
         Specification<Person> spec = getPersonSpecification(filter);
         log.info("PageRequest: {}, Specification: {}", pageRequest, spec);
         Page<Person> personPage = repository.findAll(spec, pageRequest);
-        //log.info("Retrieved Person Page : {}", JsonUtils.toJson(personPage));
         // Map to DTOs
         Page<PersonDTO> dtoPage = personPage.map(personMapper::toDto);
         return pageMapper.toPageResponse(dtoPage);
@@ -52,19 +50,24 @@ public class PersonEndpoint {
         return (root, query, cb) -> {
             var predicate = cb.conjunction();
             if (filter.firstName() != null && !filter.firstName().isBlank()) {
-                predicate = cb.and(predicate, cb.like(cb.lower(root.get("firstName")), "%" + filter.firstName().toLowerCase() + "%"));
+                predicate = cb.and(predicate,
+                        cb.like(cb.lower(root.get("firstName")), "%" + filter.firstName().toLowerCase() + "%"));
             }
             if (filter.lastName() != null && !filter.lastName().isBlank()) {
-                predicate = cb.and(predicate, cb.like(cb.lower(root.get("lastName")), "%" + filter.lastName().toLowerCase() + "%"));
+                predicate = cb.and(predicate,
+                        cb.like(cb.lower(root.get("lastName")), "%" + filter.lastName().toLowerCase() + "%"));
             }
             if (filter.email() != null && !filter.email().isBlank()) {
-                predicate = cb.and(predicate, cb.like(cb.lower(root.get("email")), "%" + filter.email().toLowerCase() + "%"));
+                predicate = cb.and(predicate,
+                        cb.like(cb.lower(root.get("email")), "%" + filter.email().toLowerCase() + "%"));
             }
             if (filter.phone() != null && !filter.phone().isBlank()) {
-                predicate = cb.and(predicate, cb.like(cb.lower(root.get("phone")), "%" + filter.phone().toLowerCase() + "%"));
+                predicate = cb.and(predicate,
+                        cb.like(cb.lower(root.get("phone")), "%" + filter.phone().toLowerCase() + "%"));
             }
             if (filter.address() != null && !filter.address().isBlank()) {
-                predicate = cb.and(predicate, cb.like(cb.lower(root.get("address")), "%" + filter.address().toLowerCase() + "%"));
+                predicate = cb.and(predicate,
+                        cb.like(cb.lower(root.get("address")), "%" + filter.address().toLowerCase() + "%"));
             }
             return predicate;
         };

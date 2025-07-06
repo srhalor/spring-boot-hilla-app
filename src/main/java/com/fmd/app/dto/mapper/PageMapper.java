@@ -1,10 +1,8 @@
 package com.fmd.app.dto.mapper;
 
-import com.fmd.app.data.Person;
 import com.fmd.app.dto.PageResponse;
 import com.fmd.app.dto.PageSortRequest;
 import com.fmd.app.dto.Pagination;
-import org.jetbrains.annotations.NotNull;
 import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +13,8 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 /**
  * Mapper interface for converting between Page and PageResponse.
  * <p>
- * This interface provides methods to convert a Page of any type to a PageResponse
+ * This interface provides methods to convert a Page of any type to a
+ * PageResponse
  * and to convert a PageSortRequest to a PageRequest.
  * </p>
  *
@@ -64,13 +63,11 @@ public interface PageMapper {
         Sort sort = Sort.by(
                 pageSortRequest.sortBy().stream()
                         .map(PageMapper::getOrder)
-                        .toList()
-        );
+                        .toList());
         return PageRequest.of(
                 pageSortRequest.offset(),
                 pageSortRequest.pageSize(),
-                sort
-        );
+                sort);
     }
 
     private static Sort.Order getOrder(PageSortRequest.SortRequest s) {
