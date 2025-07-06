@@ -56,7 +56,7 @@ export const defaultPagination: Pagination = {
   pageSize: 10
 };
 
-export const pageSortRequest: PageSortRequest ={
+export const pageSortRequest: PageSortRequest = {
   offset: defaultPagination.offset,
   pageSize: defaultPagination.pageSize,
   sortBy: []
