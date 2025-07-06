@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+target/
+dist/
+build/
+
+# Generated files
+src/main/frontend/generated/
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Java files (since prettier is mainly for frontend)
+*.java
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
