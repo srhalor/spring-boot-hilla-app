@@ -111,7 +111,7 @@ export const AddFilterDialog: React.FC<AddFilterDialogProps> = ({
                     <>
                         <div className="pagination-chips">
                             {currentFilters.filter(row => row.column && row.value).map((row, i) => {
-                                const label = columns.find(c => c.value === row.column)?.label || row.column;
+                                const label = columns.find(c => c.value === row.column)?.label ?? row.column;
                                 const chipText = `${label} ${row.operator} "${row.value}"`;
                                 return (
                                     <button
@@ -128,7 +128,7 @@ export const AddFilterDialog: React.FC<AddFilterDialogProps> = ({
                                             onClick={(e: React.MouseEvent) => { e.stopPropagation(); removeChip(i); }}
                                             aria-label="Remove filter"
                                         >
-                                            ×
+                                            x
                                         </Button>
                                     </button>
                                 );
