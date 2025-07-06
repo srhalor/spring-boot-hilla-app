@@ -4,15 +4,12 @@ import { getPersons } from 'Frontend/generated/PersonEndpoint';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import { Grid } from '@vaadin/react-components/Grid.js';
 import { GridSortColumn } from '@vaadin/react-components/GridSortColumn.js';
-import { EmailField, FormLayout, TextField } from '@vaadin/react-components';
-import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout.js';
 import { VerticalLayout } from '@vaadin/react-components/VerticalLayout.js';
 import type Pagination from 'Frontend/generated/com/fmd/app/dto/Pagination.js';
 import type PageSortRequest from 'Frontend/generated/com/fmd/app/dto/PageSortRequest.js';
 import GridPaginationControls, { defaultPagination, pageSortRequest } from 'Frontend/components/pagination/GridPaginationControls';
-import { Button } from '@vaadin/react-components/Button.js';
-import type { TextFieldChangeEvent } from '@vaadin/react-components/TextField.js';
 import type PersonDTO from 'Frontend/generated/com/fmd/app/dto/PersonDTO.js';
+import { AddFilterDialog, FilterRow } from 'Frontend/components/pagination/AddFilterDialog';
 
 // Define the type for a single sort
 interface SortRequest {
@@ -39,10 +36,24 @@ export default function PersonFormView() {
   const [pageData, setPageData] = useState<Pagination>(defaultPagination);
   const [sortRequest, setSortRequest] = useState<PageSortRequest>(pageSortRequest);
   const selectedItems = useSignal<PersonDTO[]>([]);
-  // Add filter state
-  const [filter, setFilter] = useState<PersonDTO>(defaultFilter);
-  const [pendingFilter, setPendingFilter] = useState<PersonDTO>(defaultFilter);
+  // Change filter state to array of FilterRow
+  const [filter, setFilter] = useState<FilterRow[]>([]);
+  const [filterRows, setFilterRows] = useState<FilterRow[]>([
+    { id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }
+  ]);
 
+  const columns = [
+    { label: 'First Name', value: 'firstName' },
+    { label: 'Last Name', value: 'lastName' },
+    { label: 'Email', value: 'email' },
+    { label: 'Phone', value: 'phone' },
+    { label: 'Address', value: 'address' },
+  ];
+
+  const handleApplyFilterDialog = (rows: FilterRow[]) => {
+    setFilter(rows);
+    setFilterRows(rows);
+  };
   const handlePageChanged = (newOffset: number, newPageSize: number) => {
     setSortRequest((prev) => ({ ...prev, offset: newOffset, pageSize: newPageSize }));
   };
@@ -79,22 +90,12 @@ export default function PersonFormView() {
     }
   };
 
-  // Update pending filter only
-  const handleFilterChange = (e: TextFieldChangeEvent) => {
-    const { name, value } = e.target;
-    setPendingFilter((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Apply filter on button click
-  const applyFilter = () => {
-    setFilter(pendingFilter);
-  };
-
   // Reset filter to default
   const resetFilter = () => {
-    setPendingFilter(defaultFilter);
-    setFilter(defaultFilter);
-    // Reset sort as well
+    setFilter([]);
+    setFilterRows([
+      { id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }
+    ]);
     setSortRequest(pageSortRequest);
     // Remove directions from sort columns
     const sortColumns = document.querySelectorAll('vaadin-grid-sort-column');
@@ -104,15 +105,10 @@ export default function PersonFormView() {
     });
   }
 
-  // Helper to check if any filter is set
-  const isFilterSet = Object.values(pendingFilter).some((v) => v && v.length > 0);
-
   // Add filter to sortRequest/useEffect
   useEffect(() => {
-    console.log('Fetching persons with sortRequest:', sortRequest, 'and filter:', filter);
     getPersons(sortRequest, filter).then((pageResponse) => {
       if (pageResponse?.content && pageResponse?.pagination) {
-        console.log('Fetched persons:', pageResponse);
         setPersons(pageResponse.content);
         setPageData(pageResponse.pagination);
       } else {
@@ -120,7 +116,6 @@ export default function PersonFormView() {
         setPageData(defaultPagination);
       }
     }).catch(() => {
-      console.error('Failed to fetch persons');
       setPersons([]);
       setPageData(defaultPagination);
     });
@@ -128,21 +123,16 @@ export default function PersonFormView() {
 
   return (
     <VerticalLayout theme="spacing" style={{ padding: 'var(--lumo-space-m)' }}>
-      <FormLayout style={{ maxWidth: 900, marginBottom: 'var(--lumo-space-m)' }}>
-        <TextField label="First Name" name="firstName" id="firstName" value={pendingFilter.firstName} onChange={handleFilterChange} clearButtonVisible autocomplete="given-name" />
-        <TextField label="Last Name" name="lastName" id="lastName" value={pendingFilter.lastName} onChange={handleFilterChange} clearButtonVisible autocomplete="family-name" />
-        <EmailField label="Email" name="email" id="email" value={pendingFilter.email} onChange={handleFilterChange} clearButtonVisible autocomplete="email" />
-        <TextField label="Phone" name="phone" id="phone" value={pendingFilter.phone} onChange={handleFilterChange} clearButtonVisible autocomplete="tel" />
-        <TextField label="Address" name="address" id="address" value={pendingFilter.address} onChange={handleFilterChange} clearButtonVisible autocomplete="street-address" />
-        <HorizontalLayout style={{ width: '100%', justifyContent: 'flex-end' }}>
-          <Button theme="primary" onClick={applyFilter} disabled={!isFilterSet}>Filter</Button>
-          <Button onClick={resetFilter} style={{ marginLeft: 'var(--lumo-space-s)' }} >Clear</Button>
-        </HorizontalLayout>
-      </FormLayout>
+      <AddFilterDialog
+        columns={columns}
+        initialRows={filterRows}
+        onApply={handleApplyFilterDialog}
+        onReset={resetFilter}
+        currentFilters={filter}
+      />
       <VerticalLayout theme="spacing-xs" style={{ width: '100%' }}>
         <Grid
           items={persons}
-          //all-rows-visible
           columnReorderingAllowed
           selectedItems={selectedItems.value}
           onActiveItemChanged={onActiveItemChanged}
