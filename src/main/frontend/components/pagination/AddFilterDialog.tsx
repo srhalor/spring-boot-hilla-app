@@ -39,6 +39,8 @@ const DEFAULT_OPERATORS: FilterOperatorOption[] = [
     { label: 'Ends with', value: 'endsWith' },
 ];
 
+const DEFAULT_FILTER = { id: crypto.randomUUID(), column: '', operator: 'contains', value: '' };
+
 export const AddFilterDialog: React.FC<AddFilterDialogProps> = ({
     columns,
     operators = DEFAULT_OPERATORS,
@@ -47,23 +49,21 @@ export const AddFilterDialog: React.FC<AddFilterDialogProps> = ({
     currentFilters = [],
 }) => {
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [filterRows, setFilterRows] = useState<FilterRow[]>([
-        { id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }
-    ]);
+    const [filterRows, setFilterRows] = useState<FilterRow[]>([DEFAULT_FILTER]);
     const [editIndex, setEditIndex] = useState<number | null>(null);
 
     const handleRowChange = (idx: number, key: keyof FilterRow, value: string) => {
         setFilterRows(rows => rows.map((row, i) => i === idx ? { ...row, [key]: value } : row));
     };
 
-    const addRow = () => setFilterRows(rows => [...rows, { id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }]);
+    const addRow = () => setFilterRows(rows => [...rows, { ...DEFAULT_FILTER, id: crypto.randomUUID() }]);
 
     const removeRow = (idx: number) => setFilterRows(rows => rows.length > 1 ? rows.filter((_, i) => i !== idx) : rows);
 
     const openDialog = () => {
         setDialogOpen(true);
         setEditIndex(null);
-        setFilterRows([{ id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }]);
+        setFilterRows([{ ...DEFAULT_FILTER, id: crypto.randomUUID() }]);
     };
 
     const openEditDialog = (idx: number) => {
@@ -88,11 +88,11 @@ export const AddFilterDialog: React.FC<AddFilterDialogProps> = ({
         }
         setDialogOpen(false);
         setEditIndex(null);
-        setFilterRows([{ id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }]);
+        setFilterRows([{ ...DEFAULT_FILTER, id: crypto.randomUUID() }]);
     };
 
     const resetFilters = () => {
-        setFilterRows([{ id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }]);
+        setFilterRows([{ ...DEFAULT_FILTER, id: crypto.randomUUID() }]);
         onClear();
         setDialogOpen(false);
         setEditIndex(null);
@@ -110,24 +110,29 @@ export const AddFilterDialog: React.FC<AddFilterDialogProps> = ({
                 {currentFilters.length > 0 && (
                     <>
                         <div className="pagination-chips">
-                            {currentFilters.filter(row => row.column && row.value).map((row, i) => (
-                                <span
-                                    className="pagination-chip"
-                                    key={row.id}
-                                    onClick={() => openEditDialog(i)}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    {columns.find(c => c.value === row.column)?.label || row.column} {row.operator} "{row.value}"
-                                    <Button
-                                        theme="tertiary-inline error"
-                                        style={{ marginLeft: 4 }}
-                                        onClick={(e: React.MouseEvent) => { e.stopPropagation(); removeChip(i); }}
-                                        aria-label="Remove filter"
+                            {currentFilters.filter(row => row.column && row.value).map((row, i) => {
+                                const label = columns.find(c => c.value === row.column)?.label || row.column;
+                                const chipText = `${label} ${row.operator} "${row.value}"`;
+                                return (
+                                    <button
+                                        type="button"
+                                        className="pagination-chip"
+                                        key={row.id}
+                                        aria-label={`Edit filter: ${chipText}`}
+                                        onClick={() => openEditDialog(i)}
                                     >
-                                        ×
-                                    </Button>
-                                </span>
-                            ))}
+                                        <span style={{ pointerEvents: 'none' }}>{chipText}</span>
+                                        <Button
+                                            theme="tertiary-inline error"
+                                            style={{ marginLeft: 4 }}
+                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); removeChip(i); }}
+                                            aria-label="Remove filter"
+                                        >
+                                            ×
+                                        </Button>
+                                    </button>
+                                );
+                            })}
                         </div>
                         <Button onClick={resetFilters} style={{ marginLeft: 'var(--lumo-space-s)' }}>Clear All</Button>
                     </>
