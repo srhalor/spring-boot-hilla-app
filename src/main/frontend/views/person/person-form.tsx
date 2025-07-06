@@ -10,6 +10,7 @@ import type PageSortRequest from 'Frontend/generated/com/fmd/app/dto/PageSortReq
 import GridPaginationControls, { defaultPagination, pageSortRequest } from 'Frontend/components/pagination/GridPaginationControls';
 import type PersonDTO from 'Frontend/generated/com/fmd/app/dto/PersonDTO.js';
 import { AddFilterDialog, FilterRow } from 'Frontend/components/pagination/AddFilterDialog';
+import { Button } from '@vaadin/react-components/Button.js';
 
 export const config: ViewConfig = {
   menu: { order: 1, icon: 'line-awesome/svg/user.svg' },
@@ -45,10 +46,11 @@ export default function PersonFormView() {
     setFilter(rows);
   };
 
-  // Reset filter to default
+  // Reset filter, pagination, and sorting to default
   const resetAll = () => {
     setFilter([]);
     setSortRequest(pageSortRequest);
+    setPageData(defaultPagination);
     // Remove directions from sort columns
     const sortColumns = document.querySelectorAll('vaadin-grid-sort-column');
     sortColumns.forEach((col) => {
@@ -111,6 +113,9 @@ export default function PersonFormView() {
 
   return (
     <VerticalLayout theme="spacing" style={{ padding: 'var(--lumo-space-m)' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--lumo-space-m)' }}>
+        <Button theme="tertiary" onClick={resetAll} style={{ marginRight: 'var(--lumo-space-s)' }}>Reset All</Button>
+      </div>
       <AddFilterDialog
         columns={columns}
         onApply={applyFilters}

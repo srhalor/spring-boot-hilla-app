@@ -33,7 +33,14 @@
   display: inline-flex;
   align-items: center;
   border: var(--pagination-chip-border);
+  cursor: pointer;
 }
+
+.pagination-chip:hover {
+  background: var(--lumo-primary-color-20pct);
+}
+
+
 
 .pagination-page-size-select {
   width: 4.8rem;
