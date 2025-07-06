@@ -4,9 +4,8 @@ import { getPersons } from 'Frontend/generated/PersonEndpoint';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import { Grid } from '@vaadin/react-components/Grid.js';
 import { GridSortColumn } from '@vaadin/react-components/GridSortColumn.js';
-import { EmailField, FormLayout, FormRow, SplitLayout, TextField } from '@vaadin/react-components';
+import { EmailField, FormLayout, TextField } from '@vaadin/react-components';
 import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout.js';
-import { Icon } from '@vaadin/react-components/Icon.js';
 import { VerticalLayout } from '@vaadin/react-components/VerticalLayout.js';
 import type Pagination from 'Frontend/generated/com/fmd/app/dto/Pagination.js';
 import type PageSortRequest from 'Frontend/generated/com/fmd/app/dto/PageSortRequest.js';
@@ -110,9 +109,9 @@ export default function PersonFormView() {
 
   // Add filter to sortRequest/useEffect
   useEffect(() => {
-      console.log('Fetching persons with sortRequest:', sortRequest, 'and filter:', filter);
+    console.log('Fetching persons with sortRequest:', sortRequest, 'and filter:', filter);
     getPersons(sortRequest, filter).then((pageResponse) => {
-      if (pageResponse && pageResponse.content && pageResponse.pagination) {
+      if (pageResponse?.content && pageResponse?.pagination) {
         console.log('Fetched persons:', pageResponse);
         setPersons(pageResponse.content);
         setPageData(pageResponse.pagination);
@@ -142,13 +141,13 @@ export default function PersonFormView() {
       </FormLayout>
       <VerticalLayout theme="spacing-xs" style={{ width: '100%' }}>
         <Grid
-            items={persons}
-            //all-rows-visible
-            columnReorderingAllowed
-            selectedItems={selectedItems.value}
-            onActiveItemChanged={onActiveItemChanged}
-            multiSort
-            multiSortPriority="append"
+          items={persons}
+          //all-rows-visible
+          columnReorderingAllowed
+          selectedItems={selectedItems.value}
+          onActiveItemChanged={onActiveItemChanged}
+          multiSort
+          multiSortPriority="append"
         >
           <GridSortColumn path="id" header="ID" autoWidth flexGrow={0} resizable onDirectionChanged={handleSort} />
           <GridSortColumn path="firstName" header="First Name" autoWidth flexGrow={0} resizable onDirectionChanged={handleSort} />
