@@ -11,25 +11,26 @@ import GridPaginationControls, { defaultPagination, pageSortRequest } from 'Fron
 import type PersonDTO from 'Frontend/generated/com/fmd/app/dto/PersonDTO.js';
 import { AddFilterDialog, FilterRow } from 'Frontend/components/pagination/AddFilterDialog';
 
-// Define the type for a single sort
-interface SortRequest {
-  sortBy: string;
-  direction: 'ASC' | 'DESC';
-}
-
 export const config: ViewConfig = {
   menu: { order: 1, icon: 'line-awesome/svg/user.svg' },
   title: 'Person Form',
   loginRequired: true,
 };
 
-export const defaultFilter: PersonDTO = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  address: ''
-};
+// Define the type for a single sort
+interface SortRequest {
+  sortBy: string;
+  direction: 'ASC' | 'DESC';
+}
+
+const columns = [
+  { label: 'First Name', value: 'firstName' },
+  { label: 'Last Name', value: 'lastName' },
+  { label: 'Email', value: 'email' },
+  { label: 'Phone', value: 'phone' },
+  { label: 'Address', value: 'address' },
+];
+
 
 export default function PersonFormView() {
   const [persons, setPersons] = useState<PersonDTO[]>([]);
@@ -38,22 +39,24 @@ export default function PersonFormView() {
   const selectedItems = useSignal<PersonDTO[]>([]);
   // Change filter state to array of FilterRow
   const [filter, setFilter] = useState<FilterRow[]>([]);
-  const [filterRows, setFilterRows] = useState<FilterRow[]>([
-    { id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }
-  ]);
 
-  const columns = [
-    { label: 'First Name', value: 'firstName' },
-    { label: 'Last Name', value: 'lastName' },
-    { label: 'Email', value: 'email' },
-    { label: 'Phone', value: 'phone' },
-    { label: 'Address', value: 'address' },
-  ];
 
-  const handleApplyFilterDialog = (rows: FilterRow[]) => {
+  const applyFilters = (rows: FilterRow[]) => {
     setFilter(rows);
-    setFilterRows(rows);
   };
+
+  // Reset filter to default
+  const resetAll = () => {
+    setFilter([]);
+    setSortRequest(pageSortRequest);
+    // Remove directions from sort columns
+    const sortColumns = document.querySelectorAll('vaadin-grid-sort-column');
+    sortColumns.forEach((col) => {
+      // @ts-ignore: Vaadin types do not include direction, but it exists on the element
+      col.direction = null;
+    });
+  }
+
   const handlePageChanged = (newOffset: number, newPageSize: number) => {
     setSortRequest((prev) => ({ ...prev, offset: newOffset, pageSize: newPageSize }));
   };
@@ -90,21 +93,6 @@ export default function PersonFormView() {
     }
   };
 
-  // Reset filter to default
-  const resetFilter = () => {
-    setFilter([]);
-    setFilterRows([
-      { id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }
-    ]);
-    setSortRequest(pageSortRequest);
-    // Remove directions from sort columns
-    const sortColumns = document.querySelectorAll('vaadin-grid-sort-column');
-    sortColumns.forEach((col) => {
-      // @ts-ignore: Vaadin types do not include direction, but it exists on the element
-      col.direction = null;
-    });
-  }
-
   // Add filter to sortRequest/useEffect
   useEffect(() => {
     getPersons(sortRequest, filter).then((pageResponse) => {
@@ -125,9 +113,8 @@ export default function PersonFormView() {
     <VerticalLayout theme="spacing" style={{ padding: 'var(--lumo-space-m)' }}>
       <AddFilterDialog
         columns={columns}
-        initialRows={filterRows}
-        onApply={handleApplyFilterDialog}
-        onReset={resetFilter}
+        onApply={applyFilters}
+        onClear={() => setFilter([])}
         currentFilters={filter}
       />
       <VerticalLayout theme="spacing-xs" style={{ width: '100%' }}>

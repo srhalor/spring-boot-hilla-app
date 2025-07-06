@@ -1,5 +1,6 @@
-import { Select, SelectChangeEvent } from '@vaadin/react-components/Select.js';
 import React from 'react';
+import { Select, SelectChangeEvent } from '@vaadin/react-components/Select.js';
+import './pagination-styles.css';
 
 interface PageSizeSelectProps {
   pageSize: number;
@@ -28,10 +29,7 @@ const PageSizeSelect: React.FC<PageSizeSelectProps> = ({ pageSize, onPageChange 
       theme="small"
       aria-labelledby="page-size-label"
       id="page-size-select"
-      style={{
-        width: '4.8rem',
-        '--vaadin-input-field-value-font-size': 'var(--lumo-font-size-s)',
-      }}
+      className="pagination-page-size-select"
       items={PAGE_SIZE_OPTIONS.map((it) => ({ label: it.toString(), value: it.toString() }))}
       value={pageSize.toString()}
       onChange={(e: SelectChangeEvent) => handlePageSizeChange(e, pageSize, onPageChange)}

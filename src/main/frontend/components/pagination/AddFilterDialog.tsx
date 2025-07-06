@@ -5,6 +5,7 @@ import { TextField } from '@vaadin/react-components/TextField.js';
 import { Button } from '@vaadin/react-components/Button.js';
 import { HorizontalLayout } from '@vaadin/react-components/HorizontalLayout.js';
 import { VerticalLayout } from '@vaadin/react-components/VerticalLayout.js';
+import './pagination-styles.css';
 
 export interface FilterColumnOption {
   label: string;
@@ -26,9 +27,8 @@ export interface FilterRow {
 interface AddFilterDialogProps {
   columns: FilterColumnOption[];
   operators?: FilterOperatorOption[];
-  initialRows?: FilterRow[];
   onApply: (rows: FilterRow[]) => void;
-  onReset: () => void;
+  onClear: () => void;
   currentFilters?: FilterRow[];
 }
 
@@ -42,13 +42,14 @@ const DEFAULT_OPERATORS: FilterOperatorOption[] = [
 export const AddFilterDialog: React.FC<AddFilterDialogProps> = ({
   columns,
   operators = DEFAULT_OPERATORS,
-  initialRows = [{ id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }],
   onApply,
-  onReset,
+  onClear,
   currentFilters = [],
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [filterRows, setFilterRows] = useState<FilterRow[]>(initialRows);
+  const [filterRows, setFilterRows] = useState<FilterRow[]>([
+    { id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }
+  ]);
 
   const handleRowChange = (idx: number, key: keyof FilterRow, value: string) => {
     setFilterRows(rows => rows.map((row, i) => i === idx ? { ...row, [key]: value } : row));
@@ -75,7 +76,7 @@ export const AddFilterDialog: React.FC<AddFilterDialogProps> = ({
 
   const resetFilters = () => {
     setFilterRows([{ id: crypto.randomUUID(), column: '', operator: 'contains', value: '' }]);
-    onReset();
+    onClear();
     setDialogOpen(false);
   };
 
@@ -86,29 +87,22 @@ export const AddFilterDialog: React.FC<AddFilterDialogProps> = ({
 
   return (
     <>
-      <HorizontalLayout style={{ width: '100%', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 'var(--lumo-space-m)' }}>
+      <HorizontalLayout className="pagination-controls">
         {/* Show current filters as chips */}
         {currentFilters.length > 0 && (
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginRight: '1rem' }}>
-            {currentFilters.filter(row => row.column && row.value).map((row, i) => (
-              <span key={row.id} style={{
-                background: 'var(--lumo-primary-color-10pct)',
-                color: 'var(--lumo-primary-text-color)',
-                borderRadius: '1rem',
-                padding: '0.2rem 0.8rem',
-                fontSize: 'var(--lumo-font-size-s)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                border: '1px solid var(--lumo-primary-color-50pct)'
-              }}>
-                {columns.find(c => c.value === row.column)?.label || row.column} {row.operator} "{row.value}"
-                <Button theme="tertiary-inline error" style={{ marginLeft: 4 }} onClick={() => removeChip(i)} aria-label="Remove filter">×</Button>
-              </span>
-            ))}
-          </div>
+          <>
+            <div className="pagination-chips">
+              {currentFilters.filter(row => row.column && row.value).map((row, i) => (
+                <span className="pagination-chip" key={row.id}>
+                  {columns.find(c => c.value === row.column)?.label || row.column} {row.operator} "{row.value}"
+                  <Button theme="tertiary-inline error" style={{ marginLeft: 4 }} onClick={() => removeChip(i)} aria-label="Remove filter">×</Button>
+                </span>
+              ))}
+            </div>
+            <Button onClick={resetFilters} style={{ marginLeft: 'var(--lumo-space-s)' }}>Clear All</Button>
+          </>
         )}
-        <Button theme="primary" onClick={openDialog}>Add Filter</Button>
-        <Button onClick={resetFilters} style={{ marginLeft: 'var(--lumo-space-s)' }}>Clear</Button>
+        <Button theme="primary" onClick={openDialog} style={{ marginLeft: 'var(--lumo-space-s)' }}>Add Filter</Button>
       </HorizontalLayout>
       <Dialog opened={dialogOpen} onOpenedChanged={e => setDialogOpen(e.detail.value)} headerTitle="Add Filter">
         <VerticalLayout style={{ gap: '1rem' }}>

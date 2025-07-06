@@ -3,7 +3,7 @@ import PaginationArrow from './PaginationArrow';
 import PageSizeSelect from './PageSizeSelect';
 import type Pagination from 'Frontend/generated/com/fmd/app/dto/Pagination.js';
 import type PageSortRequest from 'Frontend/generated/com/fmd/app/dto/PageSortRequest.js';
-import React from 'react';
+import './pagination-styles.css';
 
 interface GridPaginationControlsProps {
   pageData: Pagination;
@@ -13,7 +13,7 @@ interface GridPaginationControlsProps {
 const PAGINATION_DIRECTIONS = ['first', 'previous', 'next', 'last'];
 
 const GridPaginationControls: React.FC<GridPaginationControlsProps> = ({ pageData, onPageChange }) => (
-  <HorizontalLayout style={{ alignItems: 'center', gap: '0.3rem', width: '100%' }}>
+  <HorizontalLayout className="pagination-controls" style={{ alignItems: 'center', gap: '0.3rem', width: '100%' }}>
     <HorizontalLayout style={{ alignItems: 'center' }} theme="spacing-s">
       <PageSizeSelect pageSize={pageData.pageSize} onPageChange={onPageChange} />
     </HorizontalLayout>
