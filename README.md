@@ -1,67 +1,78 @@
-# Custom project from Hilla
+# Spring Boot Vaadin Hilla App
 
-This project can be used as a starting point to create your own Hilla application with Spring Boot.
-It contains all the necessary configuration and some placeholder files to get you started.
+This project is a modern, full-stack web application template using Spring Boot, Vaadin Hilla, and React.
+It demonstrates a robust, real-world approach to building enterprise-grade CRUD applications with advanced filtering, pagination, and sorting features.
 
-## Running the application
+## Features
 
-The project is a standard Maven project. To run it from the command line,
-type `mvnw` (Windows), or `./mvnw` (Mac & Linux), then open
-http://localhost:8080 in your browser.
+- **Spring Boot Backend**: REST endpoints, JPA, and H2 database for rapid development.
+- **Vaadin Hilla + React Frontend**: Type-safe, reactive UI with modern Vaadin components.
+- **Generic Filtering**: Add, view, edit, and remove multiple column-based filters with a reusable, accessible filter dialog.
+  Filters are managed as a list of objects and sent to the backend for dynamic querying.
+- **Pagination & Sorting**: Custom, reusable pagination controls and multi-column sorting.
+- **Accessibility**: All interactive elements are accessible and keyboard/touch friendly.
+- **Docker Support**: Easily build and run the app in a container.
 
-You can also import the project to your IDE of choice as you would with any
-Maven project.
+## Quick Start
 
-## Deploying to Production
+1. **Run the app locally**
 
-To create a production build, call `mvnw clean package -Pproduction` (Windows),
-or `./mvnw clean package -Pproduction` (Mac & Linux).
-This will build a JAR file with all the dependencies and front-end resources,
-ready to be deployed. The file can be found in the `target` folder after the build completes.
+   ```sh
+   ./mvnw # or mvnw.cmd on Windows
+   # Open http://localhost:8080
+   ```
 
-Once the JAR file is built, you can run it using
-`java -jar target/myapp-1.0-SNAPSHOT.jar` (NOTE, replace
-`myapp-1.0-SNAPSHOT.jar` with the name of your jar).
+2. **Production build**
 
-## Project structure
+   ```sh
+   ./mvnw clean package -Pproduction
+   java -jar target/spring-boot-vaadin-hilla-1.0-SNAPSHOT.jar
+   ```
 
-<table style="width:100%; text-align: left;">
-  <tr><th>Directory</th><th>Description</th></tr>
-  <tr><td><code>src/main/frontend/</code></td><td>Client-side source directory</td></tr>
-  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<code>index.html</code></td><td>HTML template</td></tr>
-  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<code>index.ts</code></td><td>Frontend 
-entrypoint, bootstraps a React application</td></tr>
-  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<code>routes.tsx</code></td><td>React Router routes definition</td></tr>
-  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<code>MainLayout.tsx</code></td><td>Main 
-layout component, contains the navigation menu, uses <a href="https://hilla.dev/docs/react/components/app-layout">
-App Layout</a></td></tr>
-  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<code>views/</code></td><td>UI view 
-components</td></tr>
-  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<code>themes/</code></td><td>Custom  
-CSS styles</td></tr>
-  <tr><td><code>src/main/java/&lt;groupId&gt;/</code></td><td>Server-side 
-source directory, contains the server-side Java views</td></tr>
-  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<code>Application.java</code></td><td>Server entry-point</td></tr>
-</table>
+3. **Run with Docker**
 
-## Useful links
+   ```sh
+   mvn clean package -Pproduction
+   docker build . -t spring-boot-vaadin-hilla:latest
+   docker run -p 8080:8080 spring-boot-vaadin-hilla:latest
+   ```
 
-- Read the documentation at [hilla.dev/docs](https://hilla.dev/docs/).
-- Ask questions on [Stack Overflow](https://stackoverflow.com/questions/tagged/vaadin) or join our [Forum](https://vaadin.com/forum).
-- Report issues, create pull requests in [GitHub](https://github.com/vaadin/hilla).
+## Project Structure
 
+- `src/main/frontend/` — React + Vaadin Hilla client app
+  - `components/pagination/` — Reusable pagination and filter UI components
+  - `views/` — Main UI views (e.g., Person Form)
+- `src/main/java/` — Spring Boot backend
+  - `com.fmd.app.dto` — DTOs for pagination, filtering, etc.
+  - `com.fmd.app.services` — Endpoints and business logic
+  - `com.fmd.app.util` — Utilities (e.g., filter-to-specification)
+- `Dockerfile` — For containerized deployment
 
-## Deploying using Docker
+## Key UI Components
 
-To build the Dockerized version of the project, run
+- **AddFilterDialog**: Generic, accessible dialog for adding, editing, and removing filters.
+  Filters are displayed as chips and can be edited by clicking.
+- **GridPaginationControls**: Custom pagination controls with page size select and navigation arrows.
+- **PageSizeSelect**: Standalone page size dropdown, styled for consistency.
 
-```
-mvn clean package -Pproduction
-docker build . -t spring-boot-vaadin-hilla:latest
-```
+## How Filtering Works
 
-Once the Docker image is correctly built, you can test it locally using
+- Users can add multiple filters (column, operator, value) via a dialog.
+- Filters are shown as chips; click a chip to edit, or click the "x" to remove.
+- All filters are sent as a list to the backend, which converts them to JPA Specifications for dynamic queries.
+- The UI and backend are fully decoupled and reusable for any entity.
 
-```
-docker run -p 8080:8080 spring-boot-vaadin-hilla:latest
-```
+## Accessibility & Best Practices
+
+- All interactive elements use native HTML or proper ARIA roles and keyboard/touch support.
+- Styles are managed in a shared CSS file for all pagination/filter components.
+
+## Useful Links
+
+- [Hilla Documentation](https://hilla.dev/docs/)
+- [Vaadin Forum](https://vaadin.com/forum)
+- [Spring Boot Docs](https://spring.io/projects/spring-boot)
+
+---
+
+This project is released into the public domain under the Unlicense. See LICENSE.md for details.
